@@ -6,12 +6,12 @@ import {
   remove,
 } from '../repositories/commentRepo.js';
 
-export function getAllComments(options) {
+export async function getAllComments(options) {
   return getAll(options);
 }
 
-export function getCommentById(id) {
-  const comment = getById(id);
+export async function getCommentById(id) {
+  const comment = await getById(id);
   if (comment) return comment;
   else {
     const error = new Error(`Comment ${id} not found`);
@@ -20,12 +20,12 @@ export function getCommentById(id) {
   }
 }
 
-export function createComment(data) {
+export async function createComment(data) {
   return create(data);
 }
 
-export function updateComment(id, data) {
-  const updatedComment = update(id, data);
+export async function updateComment(id, data) {
+  const updatedComment = await update(id, data);
   if (updatedComment) return updatedComment;
   else {
     const error = new Error(`Comment ${id} not found`);
@@ -34,8 +34,8 @@ export function updateComment(id, data) {
   }
 }
 
-export function deleteComment(id) {
-  const result = remove(id);
+export async function deleteComment(id) {
+  const result = await remove(id);
   if (result) return;
   else {
     const error = new Error(`Comment ${id} not found`);

@@ -6,7 +6,7 @@ import {
   deleteComment,
 } from '../services/commentService.js';
 
-export function getAllCommentsHandler(req, res) {
+export async function getAllCommentsHandler(req, res) {
   const {
     postId,
     search = '',
@@ -24,31 +24,31 @@ export function getAllCommentsHandler(req, res) {
     offset: parseInt(offset),
     limit: parseInt(limit),
   };
-  const comments = getAllComments(options);
+  const comments = await getAllComments(options);
   res.status(200).json(comments);
 }
 
-export function getCommentByIdHandler(req, res) {
+export async function getCommentByIdHandler(req, res) {
   let id = parseInt(req.params.id);
-  let comment = getCommentById(id);
+  let comment = await getCommentById(id);
   res.status(200).json(comment);
 }
 
-export function createCommentHandler(req, res) {
+export async function createCommentHandler(req, res) {
   const { postId, content } = req.body;
-  const newComment = createComment({ postId, content });
+  const newComment = await createComment({ postId, content });
   res.status(201).json(newComment);
 }
 
-export function updateCommentHandler(req, res) {
+export async function updateCommentHandler(req, res) {
   let id = parseInt(req.params.id);
   const { content } = req.body;
-  const updatedComment = updateComment(id, { content });
+  const updatedComment = await updateComment(id, { content });
   res.status(200).json(updatedComment);
 }
 
-export function deleteCommentHandler(req, res) {
+export async function deleteCommentHandler(req, res) {
   let id = parseInt(req.params.id);
-  deleteComment(id);
+  await deleteComment(id);
   res.status(204).send();
 }

@@ -109,6 +109,6 @@ export async function remove(id) {
   return result.rowCount > 0;
 }
 
-export function postExists(id) {
-  return posts.some((p) => p.id === id);
-}
+// export function postExists(id) {
+//   return posts.some((p) => p.id === id);
+// }
