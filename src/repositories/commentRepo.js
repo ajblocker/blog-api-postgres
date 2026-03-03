@@ -3,20 +3,20 @@ import pool from '../db/db.js';
 
 export async function getAll({ postId, search, sortBy, order, offset, limit }) {
   //rename created_at to an alias
-  let text = `SELECT id, post_id, content, created_at AS "createdAt" FROM comments`;
+  let text = `SELECT id, post_id AS "postId", content, created_at AS "createdAt" FROM comments`;
   const values = [];
   //build dynamic query
   const conditions = [];
   //if postId exists, add conditions and store values in array
   if (postId) {
-    //push values into values array using filtering
-    values.push(`%${postId}`);
-    conditions.push(`post_id ILIKE $${values.length}`);
+    //push values into values array using filtering, convert to integer
+    values.push(parseInt(postId));
+    conditions.push(`post_id = $${values.length}`);
   }
   //if search exists, add conditions and store values in array
   if (search) {
     //push values into values array using filtering
-    values.push(`%${search}`);
+    values.push(`%${search}%`);
     //generates correct placeholder numbers dynamically based on values added
     //values stays aligned with the values array
     conditions.push(`content ILIKE $${values.length}`);
@@ -45,7 +45,7 @@ export async function getAll({ postId, search, sortBy, order, offset, limit }) {
 export async function getById(id) {
   //use parameterized query where user input is treated as data
   // by redefining sql query using placeholders
-  const text = `SELECT id, post_id, content, created_at AS "createdAt" FROM comments WHERE id = $1`;
+  const text = `SELECT id, post_id AS "postId", content, created_at AS "createdAt" FROM comments WHERE id = $1`;
   //pass in array id
   const values = [id];
   //write query taking two arguments (query string, and values)
@@ -62,7 +62,7 @@ export async function create(data) {
                 VALUES ($1, $2)
                 RETURNING
                   id,
-                  post_id,
+                  post_id AS "postId",
                   content,
                   created_at AS "createdAt"`;
     //values array to include values
@@ -74,11 +74,11 @@ export async function create(data) {
   } catch (error) {
     //throws new error with status 400
     if (error.code === '23503') {
-      const error = new Error(
+      const newError = new Error(
         `Cannot create comment: referenced post with id ${data.postId} does not exist`,
       );
-      error.status = 400;
-      throw error;
+      newError.status = 400;
+      throw newError;
     } else {
       //rethrow original error
       throw error;
@@ -100,7 +100,7 @@ export async function update(id, updatedData) {
                     id = $3
                     RETURNING
                       id,
-                      post_id,
+                      post_id AS "postId",
                       content,
                       created_at AS "createdAt"`;
   //values array
@@ -120,5 +120,5 @@ export async function remove(id) {
   const result = await pool.query(text, values);
   //check result count to see how many rows are affected
   //if posts matching id is found, it is true
-  result.rows[0];
+  return result.rowCount > 0;
 }
